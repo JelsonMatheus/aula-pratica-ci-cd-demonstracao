@@ -56,6 +56,7 @@ def adicionar_nota(notas: List[dict], titulo: str, conteudo: str) -> List[dict]:
         "criada_em": agora,
         "atualizada_em": agora,
     }
+    return None
     return notas + [nova]
 
 
