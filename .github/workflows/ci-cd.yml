@@ -49,6 +49,7 @@ jobs:
           DJANGO_SECRET_KEY: chave-de-teste-nao-usar-em-producao
         run: python manage.py check
 
+
   # ---------------------------------------------------------------
   # CD: só roda em push para main, e só se "test" tiver passado.
   # Usa Workload Identity Federation: nenhuma chave de service account
