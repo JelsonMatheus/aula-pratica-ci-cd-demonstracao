@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bloco de Notas</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; background:#f4f6f8; margin:0; padding:0; color:#1f2933; }
+    header { background:#1c7293; color:#fff; padding:1rem 2rem; }
+    header h1 { margin:0; font-size:1.4rem; }
+    main { max-width:760px; margin:2rem auto; padding:0 1rem; }
+    .card { background:#fff; border-radius:8px; padding:1.25rem 1.5rem; margin-bottom:1rem; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+    .card h2, .card h3 { margin-top:0; }
+    form input[type=text], form textarea {
+      width:100%; padding:.5rem; margin-bottom:.5rem; border:1px solid #d1d5db;
+      border-radius:4px; box-sizing:border-box; font-family:inherit; font-size:.95rem;
+    }
+    button, a.botao {
+      background:#1c7293; color:#fff; border:none; padding:.5rem 1rem; border-radius:4px;
+      cursor:pointer; font-size:.85rem; text-decoration:none; display:inline-block;
+    }
+    button.remover { background:#b85042; }
+    a.botao.cancelar { background:#9aa5b1; }
+    .mensagens { margin-bottom:1rem; }
+    .mensagem { padding:.6rem 1rem; border-radius:4px; margin-bottom:.5rem; font-size:.9rem; }
+    .mensagem.success { background:#d8f3dc; color:#1b4332; }
+    .mensagem.error { background:#fde2e1; color:#7a271a; }
+    .meta { color:#6b7280; font-size:.78rem; }
+    footer { text-align:center; color:#9aa5b1; font-size:.75rem; padding:2rem 0; }
+    .topo-form { display:flex; gap:.5rem; margin-bottom:1rem; }
+    .topo-form input[type=text] { flex:1; margin-bottom:0; }
+  </style>
+</head>
+<body>
+  <header><h1>📝 Bloco de Notas</h1></header>
+  <main>
+    {% if messages %}
+      <div class="mensagens">
+        {% for mensagem in messages %}
+          <div class="mensagem {{ mensagem.tags }}">{{ mensagem }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer>Bloco de Notas &middot; build {{ versao_app }} &middot; sem banco de dados, notas guardadas na sessão do navegador</footer>
+</body>
+</html>

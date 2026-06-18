@@ -1,0 +1,90 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write   # necessário para autenticação via Workload Identity Federation
+
+env:
+  REGION: us-central1
+  REPOSITORIO: bloco-notas
+  SERVICO: bloco-notas
+  IMAGEM: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/bloco-notas/app
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Instalar dependências (incluindo as de teste)
+        run: pip install -r requirements-dev.txt
+
+      - name: Verificar estilo e qualidade do código (Ruff)
+        run: ruff check .
+
+      - name: Verificar formatação do código (Ruff)
+        run: ruff format --check .
+
+      - name: Rodar testes automatizados
+        env:
+          DJANGO_SECRET_KEY: chave-de-teste-nao-usar-em-producao
+        run: pytest -v
+
+      - name: Verificar configuração do Django
+        env:
+          DJANGO_SECRET_KEY: chave-de-teste-nao-usar-em-producao
+        run: python manage.py check
+
+  # ---------------------------------------------------------------
+  # CD: só roda em push para main, e só se "test" tiver passado.
+  # Usa Workload Identity Federation: nenhuma chave de service account
+  # fica armazenada como secret.
+  # ---------------------------------------------------------------
+  #deploy:
+  #  needs: test
+  #  if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - name: Checkout do código
+  #      uses: actions/checkout@v4
+#
+  #    - name: Autenticar no Google Cloud (Workload Identity Federation)
+  #      uses: google-github-actions/auth@v3
+  #      with:
+  #        workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+  #        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+#
+  #    - name: Configurar gcloud CLI
+  #      uses: google-github-actions/setup-gcloud@v2
+#
+  #    - name: Build e push da imagem Docker
+  #      run: |
+  #        gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+  #        docker build --build-arg GIT_SHA=${{ github.sha }} \
+  #          -t ${{ env.IMAGEM }}:${{ github.sha }} .
+  #        docker push ${{ env.IMAGEM }}:${{ github.sha }}
+#
+  #    - name: Deploy no Cloud Run
+  #      uses: google-github-actions/deploy-cloudrun@v3
+  #      with:
+  #        service: ${{ env.SERVICO }}
+  #        region: ${{ env.REGION }}
+  #        image: ${{ env.IMAGEM }}:${{ github.sha }}
+  #        env_vars: |
+  #          DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+  #          DJANGO_ALLOWED_HOSTS=*
+#

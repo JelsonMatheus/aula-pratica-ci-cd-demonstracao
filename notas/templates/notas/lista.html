@@ -1,0 +1,37 @@
+{% extends "notas/base.html" %}
+{% block content %}
+
+<form class="topo-form" method="get" action="{% url 'notas:lista' %}">
+  <input type="text" name="q" placeholder="Buscar notas..." value="{{ termo }}">
+  <button type="submit">Buscar</button>
+</form>
+
+<div class="card">
+  <h2>Nova nota</h2>
+  <form method="post" action="{% url 'notas:criar' %}">
+    {% csrf_token %}
+    <input type="text" name="titulo" placeholder="Título" maxlength="80" required>
+    <textarea name="conteudo" placeholder="Conteúdo" rows="3" required></textarea>
+    <button type="submit">Adicionar</button>
+  </form>
+</div>
+
+{% if not notas %}
+  <p>Nenhuma nota encontrada{% if termo %} para "{{ termo }}"{% endif %}.</p>
+{% endif %}
+
+{% for nota in notas %}
+  <div class="card">
+    <h3>{{ nota.titulo }}</h3>
+    <p>{{ nota.conteudo|linebreaksbr }}</p>
+    <p class="meta">Atualizada em {{ nota.atualizada_em }}</p>
+    <a class="botao" href="{% url 'notas:editar' nota.id %}">Editar</a>
+    <form style="display:inline" method="post" action="{% url 'notas:remover' nota.id %}"
+          onsubmit="return confirm('Remover esta nota?');">
+      {% csrf_token %}
+      <button type="submit" class="remover">Remover</button>
+    </form>
+  </div>
+{% endfor %}
+
+{% endblock %}

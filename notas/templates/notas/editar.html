@@ -1,0 +1,15 @@
+{% extends "notas/base.html" %}
+{% block content %}
+
+<div class="card">
+  <h2>Editar nota</h2>
+  <form method="post">
+    {% csrf_token %}
+    <input type="text" name="titulo" maxlength="80" value="{{ nota.titulo }}" required>
+    <textarea name="conteudo" rows="4" required>{{ nota.conteudo }}</textarea>
+    <button type="submit">Salvar</button>
+    <a class="botao cancelar" href="{% url 'notas:lista' %}">Cancelar</a>
+  </form>
+</div>
+
+{% endblock %}
